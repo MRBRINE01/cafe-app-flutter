@@ -6,4 +6,5 @@ class Constants {
   static Color textColor = Color.fromRGBO(102, 61, 48, 1);
   static Color buttonColor = Color.fromRGBO(226, 180, 154, 1);
   static Color topBarColor = Color.fromRGBO(237, 189, 161, 1);
+  static const Color selectedColor = Color.fromRGBO(102, 61, 48, 1);
 }
