@@ -1,5 +1,6 @@
 import 'package:cafe_app_flutter/core/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -9,6 +10,129 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
+  
+  final Map<String, int> itemQuantities = {};
+
+  // Menu data as JSON string
+  final String menuDataJson = '''
+  {
+    "categories": [
+      {
+        "name": "Beverages",
+        "items": [
+          {
+            "id": "coffee_latte",
+            "name": "Coffee Latte",
+            "description": "Smooth espresso with steamed milk and a light layer of foam—the perfect balance of rich coffee and creamy texture.",
+            "price": 120,
+            "image": "assets/images/chocolate.jpg",
+            "isVeg": true,
+            "isBestSeller": true
+          },
+          {
+            "id": "cappuccino",
+            "name": "Cappuccino",
+            "description": "Equal parts espresso, steamed milk, and milk foam—a classic Italian coffee with a perfect balance of bold and creamy.",
+            "price": 130,
+            "image": "assets/images/chocolate.jpg",
+            "isVeg": true,
+            "isBestSeller": false
+          },
+          {
+            "id": "chocolate_shake",
+            "name": "Chocolate Shake",
+            "description": "A rich, creamy chocolate shake blended to perfection—silky smooth, indulgently thick, and bursting with deep cocoa flavor.",
+            "price": 150,
+            "image": "assets/images/chocolate.jpg",
+            "isVeg": true,
+            "isBestSeller": true
+          }
+        ]
+      },
+      {
+        "name": "Food",
+        "items": [
+          {
+            "id": "chocolate_cake",
+            "name": "Chocolate Cake",
+            "description": "Decadent chocolate cake with layers of rich ganache—moist, fudgy, and intensely chocolatey for the ultimate dessert experience.",
+            "price": 180,
+            "image": "assets/images/chocolate.jpg",
+            "isVeg": true,
+            "isBestSeller": true
+          },
+          {
+            "id": "chicken_sandwich",
+            "name": "Chicken Sandwich",
+            "description": "Tender grilled chicken with fresh veggies and special sauce on toasted bread—savory, satisfying, and packed with flavor.",
+            "price": 160,
+            "image": "assets/images/chocolate.jpg",
+            "isVeg": false,
+            "isBestSeller": false
+          },
+          {
+            "id": "veg_wrap",
+            "name": "Vegetable Wrap",
+            "description": "Fresh seasonal vegetables with hummus in a whole grain wrap—light, nutritious, and bursting with garden-fresh flavors.",
+            "price": 140,
+            "image": "assets/images/chocolate.jpg",
+            "isVeg": true,
+            "isBestSeller": false
+          }
+        ]
+      }
+    ],
+    "topPicks": [
+      {
+        "id": "coffee_latte",
+        "image": "assets/images/chocolate.jpg"
+      },
+      {
+        "id": "chocolate_cake",
+        "image": "assets/images/chocolate.jpg"
+      },
+      {
+        "id": "chocolate_shake",
+        "image": "assets/images/chocolate.jpg"
+      },
+      {
+        "id": "chicken_sandwich",
+        "image": "assets/images/chocolate.jpg"
+      },
+      {
+        "id": "veg_wrap",
+        "image": "assets/images/chocolate.jpg"
+      }
+    ]
+  }
+  ''';
+
+  late Map<String, dynamic> menuData;
+
+  @override
+  void initState() {
+    super.initState();
+    menuData = json.decode(menuDataJson);
+  }
+
+  int getQuantity(String itemName) {
+    return itemQuantities[itemName] ?? 0;
+  }
+
+  void incrementQuantity(String itemName) {
+    setState(() {
+      itemQuantities[itemName] = getQuantity(itemName) + 1;
+    });
+  }
+
+  void decrementQuantity(String itemName) {
+    setState(() {
+      if (getQuantity(itemName) > 0) {
+        itemQuantities[itemName] = getQuantity(itemName) - 1;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -175,7 +299,7 @@ class _MenuPageState extends State<MenuPage> {
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: 10,
+                      itemCount: menuData['categories'].length,
                       itemBuilder: (context, index) {
                         return Column(
                           children: [
@@ -189,7 +313,7 @@ class _MenuPageState extends State<MenuPage> {
                               child: Row(
                                 children: [
                                   Text(
-                                    "Beverages",
+                                    menuData['categories'][index]['name'],
                                     style: Constants.menuHeadTextStyle,
                                   ),
                                   Spacer(),
@@ -209,8 +333,9 @@ class _MenuPageState extends State<MenuPage> {
                             SizedBox(height: 8),
                             ListView.builder(
                               shrinkWrap: true,
-                              itemCount: 10,
-                              itemBuilder: (context, index) {
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: menuData['categories'][index]['items'].length,
+                              itemBuilder: (context, itemIndex) {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 16.0),
@@ -228,23 +353,23 @@ class _MenuPageState extends State<MenuPage> {
                                                 Row(
                                                   children: [
                                                     Text(
-                                                      "Chocolate Shake",
+                                                      menuData['categories'][index]['items'][itemIndex]['name'],
                                                       style: Constants
                                                           .menuTextStyle,
                                                     ),
                                                     SizedBox(width: 8),
                                                     ImageIcon(
                                                       AssetImage(
-                                                        "assets/images/veg.png",
+                                                         "assets/images/veg.png" ,
                                                       ),
                                                       size: 16,
-                                                      color: Colors.green,
+                                                      color: menuData['categories'][index]['items'][itemIndex]['isVeg'] ? Colors.green : Colors.red[700],
                                                     ),
                                                   ],
                                                 ),
                                                 SizedBox(height: 2),
                                                 Text(
-                                                  "A rich, creamy chocolate shake blended to perfection—silky smooth, indulgently thick, and bursting with deep cocoa flavor.",
+                                                  menuData['categories'][index]['items'][itemIndex]['description'],
                                                   style: Constants
                                                       .menuSubTextStyle,
                                                   softWrap: true,
@@ -253,7 +378,7 @@ class _MenuPageState extends State<MenuPage> {
                                                       TextOverflow.visible,
                                                 ),
                                                 SizedBox(height: 2),
-                                                Text("₹ 200",
+                                                Text("₹ ${menuData['categories'][index]['items'][itemIndex]['price']}",
                                                     style: Constants
                                                         .menuTextStyle),
                                                 SizedBox(height: 8),
@@ -264,7 +389,7 @@ class _MenuPageState extends State<MenuPage> {
                                           Column(
                                             children: [
                                               Image.asset(
-                                                "assets/images/chocolate.jpg",
+                                                menuData['categories'][index]['items'][itemIndex]['image'],
                                                 height: 80,
                                                 width: 80,
                                               ),
@@ -281,16 +406,27 @@ class _MenuPageState extends State<MenuPage> {
                                                       MainAxisAlignment
                                                           .spaceEvenly,
                                                   children: [
-                                                    Icon(Icons.remove,
-                                                        color: Constants
-                                                            .selectedColor),
-                                                    const Text("4",
+                                                    GestureDetector(
+                                                      onTap: () =>
+                                                          decrementQuantity(
+                                                              menuData['categories'][index]['items'][itemIndex]['name']),
+                                                      child: Icon(Icons.remove,
+                                                          color: Constants
+                                                              .selectedColor),
+                                                    ),
+                                                    Text(
+                                                        "${getQuantity(menuData['categories'][index]['items'][itemIndex]['name'])}",
                                                         style: Constants
                                                             .menuSubTextStyle),
-                                                    Icon(
-                                                      Icons.add,
-                                                      color: Constants
-                                                          .selectedColor,
+                                                    GestureDetector(
+                                                      onTap: () =>
+                                                          incrementQuantity(
+                                                              menuData['categories'][index]['items'][itemIndex]['name']),
+                                                      child: Icon(
+                                                        Icons.add,
+                                                        color: Constants
+                                                            .selectedColor,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -329,7 +465,7 @@ class _MenuPageState extends State<MenuPage> {
       height: 180.0,
       child: PageView.builder(
         controller: PageController(viewportFraction: 0.8),
-        itemCount: 5,
+        itemCount: menuData['topPicks'].length,
         itemBuilder: (context, index) {
           return Container(
             margin: const EdgeInsets.all(6.0),
@@ -343,9 +479,10 @@ class _MenuPageState extends State<MenuPage> {
               // ),
             ),
             child: Center(
-              child: Text(
-                'Item ${index + 1}',
-                style: const TextStyle(fontSize: 20.0),
+              child: Image.asset(
+                menuData['topPicks'][index]['image'],
+                height: 120,
+                width: 120,
               ),
             ),
           );
